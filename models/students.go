@@ -1,6 +1,9 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"gopkg.in/validator.v2"
+	"gorm.io/gorm"
+)
 
 type Stundents struct {
 	gorm.Model
@@ -8,4 +11,11 @@ type Stundents struct {
 	CPF          string `json:cpf`
 	RG           string `json:rg`
 	Registration string `json:registration`
+}
+
+func ValidateStudent(student *Stundents) error {
+	if err := validator.Validate(student); err != nil {
+		return err
+	}
+	return nil
 }
