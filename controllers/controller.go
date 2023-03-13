@@ -36,3 +36,57 @@ func CreateStudent(c *gin.Context) {
 	database.DB.Create(&student)
 	c.JSON(http.StatusOK, student)
 }
+
+func SearchStudentById(c *gin.Context) {
+	var student models.Stundents
+	id := c.Params.ByName("id")
+	database.DB.First(&student, id)
+
+	if student.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"Not found": "Student not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, student)
+}
+
+func EditStudent(c *gin.Context) {
+	var student models.Stundents
+	id := c.Params.ByName("id")
+	database.DB.First(&student, id)
+
+	if err := c.ShouldBindJSON(&student); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Error": err.Error()})
+	}
+
+	if err := models.ValidateStudent(&student); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Error": err.Error()})
+	}
+
+	database.DB.Model(&student).UpdateColumns(student)
+	c.JSON(http.StatusOK, student)
+
+}
+
+func SearcStudentByCPF(c *gin.Context) {
+	var student models.Stundents
+	cpf := c.Param("cpf")
+	database.DB.Where(&models.Stundents{CPF: cpf}).First(&student)
+
+	if student.ID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Not found": "Student not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, student)
+}
+
+func DeletStudent(c *gin.Context) {
+	var student models.Stundents
+	id := c.Params.ByName("id")
+	database.DB.Delete(&student, id)
+}
